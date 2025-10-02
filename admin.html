@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - IT Barber Shop</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">IT BARBER SHOP</div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Vissza a főoldalra</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="admin-container">
+       
+        <section id="loginSection" class="login-section">
+            <form id="loginForm" class="login-form">
+                <h2>Admin Bejelentkezés</h2>
+                <div class="form-group">
+                    <label for="password">Jelszó</label>
+                    <input type="password" id="password" required placeholder="Adja meg a jelszót">
+                </div>
+                <button type="submit" class="submit-button">Bejelentkezés</button>
+                
+            </form>
+        </section>
+
+      
+        <section id="dashboardSection" class="admin-dashboard" style="display: none;">
+            <div class="container">
+                <div class="dashboard-header">
+                    <h2>Foglalások Kezelése</h2>
+                    <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1rem;">
+                        <button id="refreshBtn" class="refresh-button">🔄 Frissítés</button>
+                        <button id="logoutBtn" class="logout-button">Kijelentkezés</button>
+                    </div>
+                </div>
+                <div id="appointmentsList" class="appointments-list">
+                    
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
