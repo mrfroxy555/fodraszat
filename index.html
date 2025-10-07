@@ -7,11 +7,15 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Navigation -->
     <nav class="navbar">
         <div class="container">
             <div class="logo">IT BARBER SHOP</div>
-            <ul class="nav-menu">
+            <button class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-menu" id="navMenu">
                 <li><a href="#home">Kezdőlap</a></li>
                 <li><a href="#services">Szolgáltatások</a></li>
                 <li><a href="#prices">Árak</a></li>
@@ -23,7 +27,6 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
     <section id="home" class="hero">
         <div class="hero-content">
             <h1>IT BARBER SHOP</h1>
@@ -32,7 +35,6 @@
         </div>
     </section>
 
-    <!-- About Section -->
     <section class="about">
         <div class="container">
             <h2>Rólunk</h2>
@@ -41,7 +43,6 @@
         </div>
     </section>
 
-    <!-- Services Section -->
     <section id="services" class="services">
         <div class="container">
             <h2>Szolgáltatásaink</h2>
@@ -80,7 +81,6 @@
         </div>
     </section>
 
-    <!-- Prices Section -->
     <section id="prices" class="prices">
         <div class="container">
             <h2>Áraink</h2>
@@ -119,7 +119,6 @@
         </div>
     </section>
 
-    <!-- Rules Section -->
     <section id="rules" class="rules">
         <div class="container">
             <h2>Házirendünk</h2>
@@ -163,18 +162,18 @@
         </div>
     </section>
 
-    <!-- Appointment Section -->
+
     <section id="appointment" class="appointment">
         <div class="container">
             <h2>Időpontfoglalás</h2>
             <form id="appointmentForm" class="appointment-form">
                 <div class="form-group">
                     <label for="name">Név *</label>
-                    <input type="text" id="name" required>
+                    <input type="text" id="name" required pattern="[A-Za-zÁÉÍÓÖŐÚÜŰáéíóöőúüű\s]{2,50}" title="Kérjük, csak betűket használjon (min. 2, max. 50 karakter)">
                 </div>
                 <div class="form-group">
                     <label for="phone">Telefonszám *</label>
-                    <input type="tel" id="phone" required>
+                    <input type="tel" id="phone" required pattern="[\+]?[0-9\s\-]{9,15}" title="Kérjük, érvényes telefonszámot adjon meg (pl. +36 20 123 4567 vagy 06201234567)">
                 </div>
                 <div class="form-group">
                     <label for="email">Email</label>
@@ -222,7 +221,7 @@
         </div>
     </section>
 
-    <!-- Reviews Section -->
+
     <section id="reviews" class="reviews">
         <div class="container">
             <h2>Ügyfeleink Véleménye</h2>
@@ -312,7 +311,6 @@
         </div>
     </section>
 
-    <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
@@ -333,7 +331,6 @@
                     <p>📍 Mátészalka, Kölcsey utca 3.</p>
                 </div>
             </div>
-            
         </div>
     </footer>
 
