@@ -1,9 +1,7 @@
-// Create a global storage object that persists across same-origin pages
 if (!window.globalAppointments) {
     window.globalAppointments = [];
 }
 
-// Initialize appointments from window.name on page load
 (function initStorage() {
     try {
         if (window.name && window.name.startsWith('{')) {
@@ -17,7 +15,6 @@ if (!window.globalAppointments) {
     }
 })();
 
-// Load appointments
 function loadAppointments() {
     try {
         if (window.name && window.name.startsWith('{')) {
@@ -33,13 +30,11 @@ function loadAppointments() {
     return window.globalAppointments || [];
 }
 
-// Save appointment
 function saveAppointment(appointment) {
     const appointments = loadAppointments();
     appointments.push(appointment);
     window.globalAppointments = appointments;
-    
-    // Persist to window.name so it survives page navigation
+
     try {
         window.name = JSON.stringify({ appointments: appointments });
     } catch (e) {
@@ -47,9 +42,49 @@ function saveAppointment(appointment) {
     }
 }
 
-// Get all appointments
 function getAllAppointments() {
     return loadAppointments();
+}
+
+function deleteAppointment(id) {
+    const appointments = loadAppointments();
+    const filteredAppointments = appointments.filter(apt => apt.id !== id);
+    window.globalAppointments = filteredAppointments;
+    
+    try {
+        window.name = JSON.stringify({ appointments: filteredAppointments });
+    } catch (e) {
+        console.log('Error deleting appointment');
+    }
+    
+    return true;
+}
+
+// Hamburger Menu
+const hamburger = document.getElementById('hamburger');
+const navMenu = document.getElementById('navMenu');
+
+if (hamburger && navMenu) {
+    hamburger.addEventListener('click', () => {
+        hamburger.classList.toggle('active');
+        navMenu.classList.toggle('active');
+    });
+
+    // Close menu when clicking on a link
+    document.querySelectorAll('.nav-menu a').forEach(link => {
+        link.addEventListener('click', () => {
+            hamburger.classList.remove('active');
+            navMenu.classList.remove('active');
+        });
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!hamburger.contains(e.target) && !navMenu.contains(e.target)) {
+            hamburger.classList.remove('active');
+            navMenu.classList.remove('active');
+        }
+    });
 }
 
 // Smooth scrolling for navigation
@@ -73,6 +108,49 @@ if (dateInput) {
     dateInput.setAttribute('min', today);
 }
 
+// Update available time slots based on selected date
+const timeSelect = document.getElementById('time');
+
+if (dateInput && timeSelect) {
+    dateInput.addEventListener('change', function() {
+        updateAvailableTimeSlots();
+    });
+}
+
+function updateAvailableTimeSlots() {
+    const selectedDate = document.getElementById('date').value;
+    const timeSelect = document.getElementById('time');
+    
+    if (!selectedDate || !timeSelect) return;
+    
+    const allAppointments = loadAppointments();
+    const bookedTimes = allAppointments
+        .filter(apt => apt.date === selectedDate)
+        .map(apt => apt.time);
+    
+    // Get all time options
+    const timeOptions = timeSelect.querySelectorAll('option');
+    
+    timeOptions.forEach(option => {
+        if (option.value === '') return; // Skip the placeholder option
+        
+        if (bookedTimes.includes(option.value)) {
+            option.disabled = true;
+            option.textContent = option.value + ' (Foglalt)';
+            option.style.color = '#999';
+        } else {
+            option.disabled = false;
+            option.textContent = option.value;
+            option.style.color = '';
+        }
+    });
+    
+    // Reset selection if currently selected time is now booked
+    if (bookedTimes.includes(timeSelect.value)) {
+        timeSelect.value = '';
+    }
+}
+
 // Form submission handler
 const appointmentForm = document.getElementById('appointmentForm');
 if (appointmentForm) {
@@ -81,15 +159,29 @@ if (appointmentForm) {
         
         const formData = {
             id: Date.now(),
-            name: document.getElementById('name').value,
-            phone: document.getElementById('phone').value,
-            email: document.getElementById('email').value,
+            name: document.getElementById('name').value.trim(),
+            phone: document.getElementById('phone').value.trim(),
+            email: document.getElementById('email').value.trim(),
             service: document.getElementById('service').value,
             date: document.getElementById('date').value,
             time: document.getElementById('time').value,
-            notes: document.getElementById('notes').value,
+            notes: document.getElementById('notes').value.trim(),
             timestamp: new Date().toISOString()
         };
+        
+        // Validate name (only letters and spaces)
+        const nameRegex = /^[A-Za-zÁÉÍÓÖŐÚÜŰáéíóöőúüű\s]{2,50}$/;
+        if (!nameRegex.test(formData.name)) {
+            showMessage('Kérjük, érvényes nevet adjon meg (csak betűk, 2-50 karakter)!', 'error');
+            return;
+        }
+        
+        // Validate phone (numbers, spaces, +, -)
+        const phoneRegex = /^[\+]?[0-9\s\-]{9,15}$/;
+        if (!phoneRegex.test(formData.phone)) {
+            showMessage('Kérjük, érvényes telefonszámot adjon meg!', 'error');
+            return;
+        }
         
         // Validate that date is not in the past
         const selectedDate = new Date(formData.date + 'T' + formData.time);
@@ -119,6 +211,9 @@ if (appointmentForm) {
         
         // Reset form
         appointmentForm.reset();
+        
+        // Update available time slots
+        updateAvailableTimeSlots();
         
         // Log for debugging
         console.log('Appointment saved:', formData);
@@ -209,7 +304,10 @@ if (window.location.pathname.includes('admin.html') || document.getElementById('
         
         appointmentsList.innerHTML = allAppointments.map(apt => `
             <div class="appointment-item">
-                <h3>👤 ${apt.name}</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3>👤 ${apt.name}</h3>
+                    <button class="delete-button" onclick="handleDeleteAppointment(${apt.id})">🗑️ Törlés</button>
+                </div>
                 <div class="appointment-details">
                     <div class="detail-item">
                         <span class="detail-label">📅 Dátum:</span>
@@ -251,6 +349,15 @@ if (window.location.pathname.includes('admin.html') || document.getElementById('
             displayAppointments();
             showAdminMessage('Foglalások frissítve!', 'success');
         });
+    }
+}
+
+// Delete appointment handler (global function so it can be called from onclick)
+function handleDeleteAppointment(id) {
+    if (confirm('Biztosan törölni szeretné ezt a foglalást?')) {
+        deleteAppointment(id);
+        displayAppointments();
+        showAdminMessage('Foglalás sikeresen törölve!', 'success');
     }
 }
 
